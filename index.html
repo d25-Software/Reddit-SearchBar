@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #ff4500;
+            --primary-hover: #ff571a;
+            --bg-dark: #0f0f0f;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 30%, #1a1a1a 0%, #050505 100%);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 69, 0, 0.08) 0%, transparent 70%);
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .hero-container {
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            animation: fadeIn 0.8s ease-out;
+            padding: 40px;
+        }
+
+        .brand { margin-bottom: 30px; }
+
+        .brand i {
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: inline-block;
+            filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.3));
+        }
+
+        .brand h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #fff 0%, #ccc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.2);
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .search-icon {
+            padding-left: 20px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            padding: 16px 16px;
+            font-size: 1.1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+        button {
+            background: linear-gradient(135deg, var(--primary), #ff7043);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
+        }
+
+        /* --- NEW: Quick Links Section --- */
+        .quick-links {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .quick-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ccc;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        
+        .quick-btn i { color: var(--primary); }
+
+        .footer-nav {
+            margin-top: 60px;
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.3s forwards;
+        }
+
+        .footer-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .footer-nav a:hover { color: #fff; }
+        .footer-nav a:hover::after { width: 100%; }
+
+        .footer-nav a::after {
+            content: ''; position: absolute; width: 0; height: 1px;
+            bottom: -4px; left: 50%; background: var(--primary);
+            transition: all 0.3s; transform: translateX(-50%);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @media (max-width: 600px) {
+            .brand h1 { font-size: 2rem; }
+            button { padding: 14px 24px; }
+            .hero-container { padding: 20px; }
+            .quick-links { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-effect"></div>
+
+    <div class="hero-container">
+        <div class="brand">
+            <i class="fab fa-reddit-alien"></i>
+            <h1>Reddit Search</h1>
+            <p>Explore discussions, images, and threads.</p>
+        </div>
+
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="query" placeholder="Type to search..." autocomplete="off">
+            <button onclick="searchReddit()">Search</button>
+        </div>
+
+        <div class="quick-links">
+    <a href="search-results.html?mode=trending" class="quick-btn">
+        <i class="fas fa-fire"></i> Trending
+    </a>
+    <a href="search-results.html?tab=images" class="quick-btn">
+        <i class="fas fa-image"></i> Images
+    </a>
+    <a href="search-results.html?tab=videos" class="quick-btn">
+        <i class="fas fa-play-circle"></i> Videos
+    </a>
+</div>
+
+        <div class="footer-nav">
+            <a href="#">About</a>
+            <a href="#">API</a>
+            <a href="#">Privacy</a>
+            <a href="#">Contact</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('query').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                searchReddit();
+            }
+        });
+
+        function searchReddit() {
+            const query = document.getElementById('query').value;
+            if(query) {
+                const btn = document.querySelector('button');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                setTimeout(() => {
+                    window.location.href = `search-results.html?query=${encodeURIComponent(query)}`;
+                }, 100);
+            } else {
+                const wrapper = document.querySelector('.search-wrapper');
+                wrapper.style.animation = 'shake 0.4s ease';
+                setTimeout(() => wrapper.style.animation = '', 400);
+            }
+        }
+    </script>
+
+</body>
+</html>
